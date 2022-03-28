@@ -1,6 +1,7 @@
 import express from "express";
 import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
+import cors from "cors";
 import CacheManager from "./lib/CacheManager";
 import DefaultCacheProvider, { KEY } from "./lib/CacheProvider";
 
@@ -20,6 +21,7 @@ const TTL = parseInt(process.env.TTL!); // milliseconds
 const cache = new CacheManager(DefaultCacheProvider);
 const app = express();
 
+app.use(cors());
 app.use(limiter);
 
 app.get("/*", async (_, res) => {
