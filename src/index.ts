@@ -31,14 +31,15 @@ const corsOptions = {
     "https://fortcake.io",
     "https://www.fortcake.io",
     "https://development.fortcake.io",
+    "https://feature.fortcake.io",
   ],
   optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 
 app.use(cors(corsOptions));
 app.use(limiter);
-app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 app.get("/games", async (_, res) => {
   const currentTime = new Date().getTime();

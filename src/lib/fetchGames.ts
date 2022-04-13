@@ -1,7 +1,7 @@
 import axios from "axios";
 import dummyContent from "./dummyContent";
 
-const url = `https://api.airtable.com/v0/${process.env.AIRTABLE_DATABASE}/site-content?api_key=${process.env.AIRTABLE_API_KEY}`;
+const url = `https://api.airtable.com/v0/${process.env.AIRTABLE_DATABASE}/site-content?api_key=${process.env.AIRTABLE_API_KEY}&filterByFormula=%7Bchain%7D+%3D+'BNB'`;
 
 const controller = new AbortController();
 
