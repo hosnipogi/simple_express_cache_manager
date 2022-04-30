@@ -33,7 +33,7 @@ const corsOptions = {
     "https://development.fortcake.io",
     "https://feature.fortcake.io",
   ],
-  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+  optionsSuccessStatus: 200,
 };
 
 app.use(cors(corsOptions));
@@ -54,7 +54,7 @@ app.get("/games", async (_, res) => {
   const games = await fetchGames();
   cache.setKey(KEY, games);
 
-  return res.send(cache.getKey(KEY).value);
+  return res.send(games);
 });
 
 app.post("/subscribe", async (req, res) => {

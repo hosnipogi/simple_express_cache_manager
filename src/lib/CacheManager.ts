@@ -7,7 +7,7 @@ class CacheManager {
     this.obj = provider;
   }
 
-  public setKey = (key: typeof KEY, val: GamesConfig): void => {
+  public setKey = (key: typeof KEY, val: GamesConfig[]): void => {
     this.obj[key] = {
       value: val,
       lastUpdate: new Date().getTime(),

@@ -2,7 +2,7 @@ export const KEY = "GAMELIST";
 export interface GamesConfig {
   title: string;
   subtitle: string;
-  logo: string;
+  logo: { [logoFields: string]: string }[] | string;
   cta: string;
   symbol: string;
   votes: number;
@@ -12,14 +12,14 @@ export interface GamesConfig {
 
 export type GamesListType = {
   [KEY]: {
-    value: GamesConfig;
+    value: GamesConfig[];
     lastUpdate: number;
   };
 };
 
 const CacheProvider: GamesListType = {
   [KEY]: {
-    value: {} as GamesConfig,
+    value: [],
     lastUpdate: new Date().getTime(),
   },
 };
