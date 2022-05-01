@@ -1,58 +1,44 @@
 import express from "express";
+import { RATELIMIT, CORSOPTIONS } from "./config";
 import rateLimit from "express-rate-limit";
-import dotenv from "dotenv";
 import cors from "cors";
 import CacheManager from "./lib/CacheManager";
-import DefaultCacheProvider, { KEY } from "./lib/CacheProvider";
-
-dotenv.config();
-
-import fetchGames from "./lib/fetchGames";
+import CacheProvider from "./lib/CacheProvider";
+import { KEY } from "./lib/types";
+import CronJobs from "./lib/CronJobs";
+import { FetchAndUpdateGames } from "./lib/utils/index";
 import KlaviyoApi from "./lib/KlaviyoApi";
-
-const limiter = rateLimit({
-  windowMs: 5 * 60 * 1000, // 5 minutes
-  max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-});
+export const cache = new CacheManager(CacheProvider);
 
 const PORT = parseInt(process.env.PORT!);
 const TTL = parseInt(process.env.TTL!); // milliseconds
-const cache = new CacheManager(DefaultCacheProvider);
 
 const KLAVIYO_LIST_ID = process.env.KLAVIYO_LIST_ID!;
 const KLAVIYO_PRIVATE_KEY = process.env.KLAVIYO_PRIVATE_KEY!;
 
 const app = express();
 
-const corsOptions = {
-  origin: [
-    "https://fortcake.io",
-    "https://www.fortcake.io",
-    "https://development.fortcake.io",
-    "https://feature.fortcake.io",
-  ],
-  optionsSuccessStatus: 200,
-};
-
-app.use(cors(corsOptions));
-app.use(limiter);
+app.use(cors(CORSOPTIONS));
+app.use(rateLimit(RATELIMIT));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+app.get("/scores", (_, res) => {
+  const cachedScores = cache.getKey(KEY.SCORES);
+  return res.send(cachedScores);
+});
+
 app.get("/games", async (_, res) => {
   const currentTime = new Date().getTime();
-  const cachedContent = cache.getKey(KEY);
+  const cachedGames = cache.getKey(KEY.GAMES);
 
-  if (Object.keys(cachedContent.value).length) {
-    if (currentTime - cachedContent.lastUpdate < TTL) {
-      return res.send(cachedContent.value);
+  if (Object.keys(cachedGames.value).length) {
+    if (currentTime - cachedGames.lastUpdate < TTL) {
+      return res.send(cachedGames.value);
     }
   }
 
-  const games = await fetchGames();
-  cache.setKey(KEY, games);
+  const games = await FetchAndUpdateGames();
 
   return res.send(games);
 });
@@ -72,11 +58,13 @@ app.post("/subscribe", async (req, res) => {
   return res.send(response);
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(
     "Listening on port: %d, TTL: %d, at time: %d",
     PORT,
     TTL,
     new Date().getTime()
   );
+  await FetchAndUpdateGames();
+  CronJobs();
 });

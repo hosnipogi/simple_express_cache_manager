@@ -1,24 +1,11 @@
-export const KEY = "GAMELIST";
-export interface GamesConfig {
-  title: string;
-  subtitle: string;
-  logo: { [logoFields: string]: string }[] | string;
-  cta: string;
-  symbol: string;
-  votes: number;
-  chain: string;
-  address: string;
-}
-
-export type GamesListType = {
-  [KEY]: {
-    value: GamesConfig[];
-    lastUpdate: number;
-  };
-};
+import { KEY, GamesListType } from "../types";
 
 const CacheProvider: GamesListType = {
-  [KEY]: {
+  [KEY.GAMES]: {
+    value: [],
+    lastUpdate: new Date().getTime(),
+  },
+  [KEY.SCORES]: {
     value: [],
     lastUpdate: new Date().getTime(),
   },

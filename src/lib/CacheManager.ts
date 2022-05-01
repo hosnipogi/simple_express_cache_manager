@@ -1,22 +1,20 @@
-import { KEY, GamesListType, GamesConfig } from "./CacheProvider";
+import { KEY, GamesListType, GamesConfig } from "./types";
 
-class CacheManager {
+export default class CacheManager {
   private obj: GamesListType;
 
   constructor(provider: GamesListType) {
     this.obj = provider;
   }
 
-  public setKey = (key: typeof KEY, val: GamesConfig[]): void => {
+  public setKey = (key: KEY, val: GamesListType[KEY]["value"]): void => {
     this.obj[key] = {
       value: val,
       lastUpdate: new Date().getTime(),
     };
   };
 
-  public getKey = (key: typeof KEY): GamesListType[typeof KEY] => {
+  public getKey = (key: KEY): GamesListType[KEY] => {
     return this.obj[key];
   };
 }
-
-export default CacheManager;

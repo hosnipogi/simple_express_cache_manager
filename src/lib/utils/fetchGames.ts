@@ -1,8 +1,7 @@
 import axios from "axios";
-import dummyContent from "./dummyContent";
-import { GamesConfig } from "./CacheProvider";
-
-const url = `https://api.airtable.com/v0/${process.env.AIRTABLE_DATABASE}/site-content?api_key=${process.env.AIRTABLE_API_KEY}&filterByFormula=%7Bchain%7D+%3D+'BNB'`;
+import dummyContent from "../dummyContent";
+import { GamesConfig } from "../types";
+import { airTableApi } from "../../config";
 
 const controller = new AbortController();
 
@@ -18,7 +17,7 @@ const fetchGamesData = async () => {
   try {
     const {
       data: { records },
-    } = await axios.get<AirTableResponse>(url, {
+    } = await axios.get<AirTableResponse>(airTableApi, {
       signal: controller.signal,
     });
 
@@ -31,7 +30,7 @@ const fetchGamesData = async () => {
 
     return allGames;
   } catch (e) {
-    console.error(e);
+    // console.error(e);
     return dummyContent;
   }
 };
