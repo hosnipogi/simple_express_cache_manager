@@ -1,6 +1,6 @@
 export enum CRONSCHEDULE {
   EVERYMINUTE = `* * * * *`,
-  EVERYFIFTHMINUTES = `*/5 * * * *`,
+  EVERYFIFTHMINUTE = `*/5 * * * *`,
   EVERYTHIRTYMINUTES = `*/30 * * * *`,
   EVERYDAY = `0 1 * * *`, // everyday at 1am
 }

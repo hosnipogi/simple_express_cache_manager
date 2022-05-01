@@ -32,7 +32,7 @@ app.get("/games", async (_, res) => {
   const currentTime = new Date().getTime();
   const cachedGames = cache.getKey(KEY.GAMES);
 
-  if (Object.keys(cachedGames.value).length) {
+  if (cachedGames.value.length) {
     if (currentTime - cachedGames.lastUpdate < TTL) {
       return res.send(cachedGames.value);
     }
