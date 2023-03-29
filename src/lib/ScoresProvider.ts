@@ -20,6 +20,9 @@ async function getCoinGeckoScoresFromCoinGeckoApi(token: GamesConfig) {
     const { data } = await axios.get<CoinGeckoApiResponseType>(
       coingeckoapi + address
     );
+
+    console.log(data.symbol);
+
     const {
       [ScoreCategories.COINGECKO]: score_coingecko,
       [ScoreCategories.COMMUNITY]: score_community,
@@ -113,9 +116,18 @@ export default function (
   CacheManager: CacheManager
 ): Promise<FortCakeScoresType[]> {
   const tokens = CacheManager.getKey(KEY.GAMES).value;
-  const tokensWithCoinGeckoScores = tokens.map((token: any) =>
-    getCoinGeckoScoresFromCoinGeckoApi(token)
+
+  const tokensWithCoinGeckoScores = tokens.map((token: any, idx) =>
+    delay(() => getCoinGeckoScoresFromCoinGeckoApi(token), 500 * idx)
   );
 
-  return getTokensWithFortcakeScores(tokensWithCoinGeckoScores);
+  return getTokensWithFortcakeScores(tokensWithCoinGeckoScores as any);
+}
+
+function delay<T>(cb: (arg?: T) => T, ms: number) {
+  return new Promise((res) => {
+    setTimeout(() => {
+      res(cb());
+    }, ms);
+  });
 }
