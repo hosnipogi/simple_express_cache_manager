@@ -1,20 +1,17 @@
-import express from "express";
+import { addToSendgridMailingList } from "./lib/SendGrid";
+import { FetchAndUpdateGames } from "./lib/utils/index";
+import { KEY } from "./lib/types";
 import { RATELIMIT, CORSOPTIONS } from "./config";
-import rateLimit from "express-rate-limit";
-import cors from "cors";
 import CacheManager from "./lib/CacheManager";
 import CacheProvider from "./lib/CacheProvider";
-import { KEY } from "./lib/types";
+import cors from "cors";
 import CronJobs from "./lib/CronJobs";
-import { FetchAndUpdateGames } from "./lib/utils/index";
-import KlaviyoApi from "./lib/KlaviyoApi";
+import express from "express";
+import rateLimit from "express-rate-limit";
 export const cache = new CacheManager(CacheProvider);
 
 const PORT = parseInt(process.env.PORT!);
 const TTL = parseInt(process.env.TTL!); // milliseconds
-
-const KLAVIYO_LIST_ID = process.env.KLAVIYO_LIST_ID!;
-const KLAVIYO_PRIVATE_KEY = process.env.KLAVIYO_PRIVATE_KEY!;
 
 const app = express();
 
@@ -46,16 +43,20 @@ app.get("/games", async (_, res) => {
 app.post("/subscribe", async (req, res) => {
   const { email } = req.body;
   if (!email) return res.send("error");
-  const klaviyo = new KlaviyoApi(KLAVIYO_PRIVATE_KEY);
 
-  const response = await klaviyo.SubscribeUser({
-    email,
-    listId: KLAVIYO_LIST_ID,
-  });
+  try {
+    const promises = [addToSendgridMailingList([{ email }])];
+    const result = await Promise.all(promises);
 
-  console.info({ newUser: { ...response, time: new Date().getTime() } });
+    console.info(
+      `Added email: ${email} to mail list at ${new Date().getTime()}`
+    );
 
-  return res.send(response);
+    return res.json({ success: true, result });
+  } catch (e) {
+    console.log(`${new Date().getTime().toFixed(0).substr(-4)}: `, { e });
+    return res.status(400).json({ success: false });
+  }
 });
 
 app.listen(PORT, async () => {
